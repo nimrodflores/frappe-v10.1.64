@@ -1411,17 +1411,3 @@ def get_system_settings(key):
 def get_active_domains():
 	from frappe.core.doctype.domain_settings.domain_settings import get_active_domains
 	return get_active_domains()
-
-def safe_decode(param, encoding = 'utf-8'):
-	try:
-		param = param.decode(encoding)
-	except Exception:
-		pass
-	return param
-
-def safe_encode(param, encoding = 'utf-8'):
-	try:
-		param = param.encode(encoding)
-	except Exception:
-		pass
-	return param
