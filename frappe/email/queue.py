@@ -407,13 +407,28 @@ def send_one(email, smtpserver=None, auto_commit=True, now=False, from_test=Fals
 	frappe.db.sql("""update `tabEmail Queue` set status='Sending', modified=%s where name=%s""",
 		(now_datetime(), email.name), auto_commit=auto_commit)
 
+	comm = None
+
 	if email.communication:
-		frappe.get_doc('Communication', email.communication).set_delivery_status(commit=auto_commit)
+		comm = frappe.get_doc('Communication', email.communication)
+		if comm.email_account:
+			mailer = frappe.get_doc('Email Account', comm.email_account)
+			smtpserver = SMTPServer( \
+				login = mailer.login_id or mailer.email_id,
+				password = mailer.password,
+				server = mailer.smtp_server,
+				port = mailer.smtp_port,
+				use_tls = mailer.use_tls \
+			)
+			smtpserver.sender = comm.sender
+			smtpserver.always_use_account_email_id_as_sender = cint(mailer.get("always_use_account_email_id_as_sender"))
+		comm.set_delivery_status(commit=auto_commit)
 
 	try:
 		if not frappe.flags.in_test:
-			if not smtpserver: smtpserver = SMTPServer()
-			smtpserver.setup_email_account(email.reference_doctype, sender=email.sender)
+			if not smtpserver:
+				smtpserver = SMTPServer()
+				smtpserver.setup_email_account(email.reference_doctype, sender=email.sender)
 
 		for recipient in recipients_list:
 			if recipient.status != "Not Sent":
