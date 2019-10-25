@@ -415,7 +415,7 @@ def send_one(email, smtpserver=None, auto_commit=True, now=False, from_test=Fals
 			mailer = frappe.get_doc('Email Account', comm.email_account)
 			smtpserver = SMTPServer( \
 				login = mailer.login_id or mailer.email_id,
-				password = mailer.password,
+				password = mailer.get_password(raise_exception=True),
 				server = mailer.smtp_server,
 				port = mailer.smtp_port,
 				use_tls = mailer.use_tls \
