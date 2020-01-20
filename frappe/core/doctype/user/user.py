@@ -262,7 +262,7 @@ class User(Document):
 			app_title = site_info.get('company', None)
 
 		if app_title:
-			subject = _("Welcome to {0}").format(app_title)
+			subject = _("Your login credentials to {0} client portal").format(app_title)
 		else:
 			subject = _("Complete Registration")
 
